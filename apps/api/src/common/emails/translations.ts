@@ -181,6 +181,16 @@ export const EMAIL_SUBJECTS_TRANSLATIONS = {
     fr: "Lien de connexion",
     ru: "Ссылка для входа",
   },
+  coursePaymentSucceededEmail: {
+    en: "Payment received - {{courseName}}",
+    pl: "Płatność otrzymana - {{courseName}}",
+    de: "Zahlung erhalten - {{courseName}}",
+    lt: "Mokėjimas gautas - {{courseName}}",
+    cs: "Platba přijata - {{courseName}}",
+    es: "Pago recibido - {{courseName}}",
+    fr: "Paiement reçu - {{courseName}}",
+    ru: "Оплата получена - {{courseName}}",
+  },
   courseChatMentionEmail: {
     en: "You were mentioned in {{courseName}}",
     pl: "Oznaczono Cię w kursie {{courseName}}",

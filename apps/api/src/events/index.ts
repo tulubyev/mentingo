@@ -99,3 +99,4 @@ export * from "./scorm/play-scorm.event";
 export * from "./scorm/complete-scorm.event";
 export * from "./resource/resource-video-duration-updated.event";
 export * from "./resource/resource-video-duration-updated.event";
+export * from "./payments/course-payment-succeeded.event";

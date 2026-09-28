@@ -24,6 +24,7 @@ import {
   type StudentCourseUrgency,
   STUDENT_COURSE_URGENCY,
   STUDENT_DASHBOARD_LIMITS,
+  YOOKASSA_CURRENCY,
 } from "@repo/shared";
 import { load as loadHtml } from "cheerio";
 import { addDays, endOfDay, startOfDay } from "date-fns";
@@ -112,6 +113,8 @@ import { LocalizationService } from "src/localization/localization.service";
 import { ENTITY_TYPE } from "src/localization/localization.types";
 import { LumaService } from "src/luma/luma.service";
 import { OutboxPublisher } from "src/outbox/outbox.publisher";
+import { PAYMENT_ERRORS } from "src/payments/payments.constants";
+import { isYooKassaEnabled } from "src/payments/yookassa/yookassa.config";
 import { SettingsService } from "src/settings/settings.service";
 import { StatisticsRepository } from "src/statistics/repositories/statistics.repository";
 import {
@@ -2388,7 +2391,10 @@ export class CourseService {
     }
     const globalSettings = await this.settingsService.getGlobalSettings();
 
-    const finalCurrency = globalSettings.defaultCourseCurrency || "usd";
+    // ЮKassa charges in RUB only, so every course is priced in RUB while it is enabled.
+    const finalCurrency = isYooKassaEnabled()
+      ? YOOKASSA_CURRENCY
+      : globalSettings.defaultCourseCurrency || "usd";
 
     let productId: string | null = null;
     let priceId: string | null = null;
@@ -2609,7 +2615,7 @@ export class CourseService {
           ),
           title: setJsonbField(courses.title, language, title),
           description: setJsonbField(courses.description, language, description),
-          ...(isStripeConfigured ? { priceInCents, currency } : {}),
+          ...this.getPricingUpdate(isStripeConfigured, priceInCents, currency),
         };
 
         const [updatedCourse] = await trx
@@ -3012,6 +3018,10 @@ export class CourseService {
 
     if (course.enrolled) throw new ConflictException("Course is already enrolled");
 
+    if (currentUser && !paymentId && (course.price ?? 0) > 0) {
+      await this.assertPaidSelfEnrollmentAllowed(currentUser);
+    }
+
     await this.db.transaction(async (trx) => {
       await this.createStudentCourse(id, studentId, paymentId, null);
       await this.createCourseDependencies(id, studentId, paymentId, trx);
@@ -3026,6 +3036,34 @@ export class CourseService {
         }),
       );
     }
+  }
+
+  /**
+   * A paid course can only be self-enrolled through a confirmed payment while a payment provider is
+   * configured. Billing managers keep the ability to enroll themselves for testing/support.
+   */
+  private async assertPaidSelfEnrollmentAllowed(currentUser: CurrentUserType) {
+    if (hasPermission(currentUser.permissions, PERMISSIONS.BILLING_MANAGE)) return;
+
+    const isPaymentProviderEnabled =
+      isYooKassaEnabled() || (await this.envService.getStripeConfigured()).enabled;
+
+    if (isPaymentProviderEnabled) {
+      throw new ForbiddenException(PAYMENT_ERRORS.PAYMENT_REQUIRED);
+    }
+  }
+
+  /** Prices can be edited when any payment provider is configured; ЮKassa prices are in RUB. */
+  private getPricingUpdate(
+    isStripeConfigured: boolean,
+    priceInCents: number | undefined,
+    currency: string | undefined,
+  ) {
+    if (isYooKassaEnabled()) {
+      return priceInCents === undefined ? {} : { priceInCents, currency: YOOKASSA_CURRENCY };
+    }
+
+    return isStripeConfigured ? { priceInCents, currency } : {};
   }
 
   async enrollCourses(

@@ -63,6 +63,7 @@ import { LocalizationModule } from "./localization/localization.module";
 import { LumaModule } from "./luma/luma.module";
 import { NewsModule } from "./news/news.module";
 import { OutboxModule } from "./outbox/outbox.module";
+import { PaymentsModule } from "./payments/payments.module";
 import { PermissionsModule } from "./permissions/permissions.module";
 import { PhoneAuthModule } from "./phone-auth/phone-auth.module";
 import { QuestionsModule } from "./questions/question.module";
@@ -159,6 +160,7 @@ import type { RedisClient } from "src/redis";
     S3Module,
     BunnyStreamModule,
     StripeModule,
+    PaymentsModule,
     EventsModule,
     StatisticsModule,
     ReportModule,

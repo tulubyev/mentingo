@@ -14,6 +14,8 @@ export class TenantRlsInterceptor implements NestInterceptor {
     "/api/certificates/share",
     "/api/certificates/share-image",
     "/api/live-training/livekit/webhook",
+    // The ЮKassa notification carries no tenant host; the tenant is taken from our payment row.
+    "/api/payments/yookassa/webhook",
     "/api/calendar/microsoft/notifications",
     "/api/calendar/microsoft/lifecycle-notifications",
   ]);
