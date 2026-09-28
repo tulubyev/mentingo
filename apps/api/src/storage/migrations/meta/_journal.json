@@ -1415,6 +1415,20 @@
       "when": 1790581888813,
       "tag": "0201_add_phone_to_users",
       "breakpoints": true
+    },
+    {
+      "idx": 202,
+      "version": "7",
+      "when": 1790591828285,
+      "tag": "0202_add_payments_and_promo_codes",
+      "breakpoints": true
+    },
+    {
+      "idx": 203,
+      "version": "7",
+      "when": 1790591841039,
+      "tag": "0203_enable_payments_rls",
+      "breakpoints": true
     }
   ]
 }

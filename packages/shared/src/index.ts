@@ -32,6 +32,7 @@ export * from "./constants/lumaFileIngestion";
 export * from "./constants/masterCourse";
 export * from "./constants/messageRole";
 export * from "./constants/newsSettings";
+export * from "./constants/payments";
 export * from "./constants/permissions";
 export * from "./constants/qaSettings";
 export * from "./constants/registrationForm";

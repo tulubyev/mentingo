@@ -33,6 +33,7 @@ import {
   AI_MENTOR_TEACHING_STYLE,
   AI_MENTOR_TYPE,
   RESOURCE_VISIBILITY,
+  PAYMENT_STATUSES,
 } from "@repo/shared";
 import { sql } from "drizzle-orm";
 import {
@@ -76,6 +77,9 @@ import {
 } from "./utils";
 
 import type {
+  PaymentProvider,
+  PaymentStatus,
+  PromoCodeDiscountType,
   CourseStatus,
   CourseType,
   CourseOriginType,
@@ -3013,4 +3017,87 @@ export const learningPathEntityMap = pgTable(
       table.sourceEntityId,
     ),
   }),
+);
+
+export const promoCodes = pgTable(
+  "promo_codes",
+  {
+    ...id,
+    ...timestamps,
+    // Stored normalized (trimmed, upper-case) so the unique index is case-insensitive.
+    code: varchar("code", { length: 64 }).notNull(),
+    discountType: text("discount_type").$type<PromoCodeDiscountType>().notNull(),
+    // Percent (1-100) for "percent", minor units (kopecks) for "fixed".
+    discountValue: integer("discount_value").notNull(),
+    courseId: uuid("course_id").references(() => courses.id, { onDelete: "cascade" }),
+    validFrom: timestampWithTimezone({ name: "valid_from" }),
+    validTo: timestampWithTimezone({ name: "valid_to" }),
+    maxActivations: integer("max_activations"),
+    activationsCount: integer("activations_count").notNull().default(0),
+    isActive: boolean("is_active").notNull().default(true),
+    createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+    tenantId,
+  },
+  withTenantIdIndex("promo_codes", (table) => ({
+    codeUniqueIdx: uniqueIndex("promo_codes_tenant_id_code_unique_idx").on(
+      table.tenantId,
+      table.code,
+    ),
+    courseIdx: index("promo_codes_course_id_idx").on(table.courseId),
+    discountValueCheck: check(
+      "promo_codes_discount_value_check",
+      sql`${table.discountValue} > 0 AND (${table.discountType} <> 'percent' OR ${table.discountValue} <= 100)`,
+    ),
+    maxActivationsCheck: check(
+      "promo_codes_max_activations_check",
+      sql`${table.maxActivations} IS NULL OR ${table.maxActivations} > 0`,
+    ),
+  })),
+);
+
+export const payments = pgTable(
+  "payments",
+  {
+    ...id,
+    ...timestamps,
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    courseId: uuid("course_id").references(() => courses.id, { onDelete: "set null" }),
+    // Snapshot of the course title at checkout (used for the receipt and the registry).
+    courseTitle: text("course_title").notNull(),
+    provider: text("provider").$type<PaymentProvider>().notNull(),
+    providerPaymentId: text("provider_payment_id"),
+    providerStatus: text("provider_status"),
+    status: text("status").$type<PaymentStatus>().notNull().default(PAYMENT_STATUSES.PENDING),
+    // All amounts are in minor units (kopecks for RUB).
+    amount: integer("amount").notNull(),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    originalAmount: integer("original_amount").notNull(),
+    discountAmount: integer("discount_amount").notNull().default(0),
+    promoCodeId: uuid("promo_code_id").references(() => promoCodes.id, { onDelete: "set null" }),
+    promoCode: varchar("promo_code", { length: 64 }),
+    refundedAmount: integer("refunded_amount").notNull().default(0),
+    confirmationUrl: text("confirmation_url"),
+    idempotenceKey: text("idempotence_key").notNull(),
+    receiptEmail: text("receipt_email"),
+    cancellationReason: text("cancellation_reason"),
+    paidAt: timestampWithTimezone({ name: "paid_at" }),
+    canceledAt: timestampWithTimezone({ name: "canceled_at" }),
+    refundedAt: timestampWithTimezone({ name: "refunded_at" }),
+    tenantId,
+  },
+  withTenantIdIndex("payments", (table) => ({
+    providerPaymentIdUniqueIdx: uniqueIndex("payments_provider_payment_id_unique_idx").on(
+      table.provider,
+      table.providerPaymentId,
+    ),
+    userCourseIdx: index("payments_user_id_course_id_idx").on(table.userId, table.courseId),
+    tenantCreatedAtIdx: index("payments_tenant_id_created_at_idx").on(
+      table.tenantId,
+      table.createdAt,
+    ),
+    amountsCheck: check(
+      "payments_amounts_check",
+      sql`${table.amount} >= 0 AND ${table.originalAmount} >= 0 AND ${table.discountAmount} >= 0 AND ${table.refundedAmount} >= 0 AND ${table.refundedAmount} <= ${table.amount}`,
+    ),
+  })),
 );
