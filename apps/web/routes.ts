@@ -56,6 +56,7 @@ export const routes: (
             id: "edit-article",
           });
           route("profile/:id", "modules/Profile/Profile.page.tsx");
+          route("payment/return", "modules/Payments/PaymentReturn.page.tsx");
         });
         route("course/:courseId/lesson", "modules/Courses/Lesson/Lesson.layout.tsx", () => {
           route(":lessonId", "modules/Courses/Lesson/Lesson.page.tsx");
@@ -84,6 +85,7 @@ export const routes: (
             "promotion-codes/:id",
             "modules/Admin/PromotionCodes/PromotionCodeDetails.page.tsx",
           );
+          route("payments", "modules/Admin/Payments/Payments.page.tsx");
           route("activity-logs", "modules/ActivityLogs/ActivityLogs.page.tsx");
           route("ai-conversations", "modules/Admin/AiConversations/AiConversations.page.tsx");
           route(

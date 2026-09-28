@@ -1,5 +1,7 @@
+import { YOOKASSA_CURRENCY, type SupportedLanguages } from "@repo/shared";
 import { useTranslation } from "react-i18next";
 
+import { useIsYooKassaEnabled } from "~/api/queries/usePaymentsConfig";
 import { PriceInput } from "~/components/PriceInput/PriceInput";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
@@ -12,8 +14,6 @@ import { COURSE_PRICING_HANDLES } from "../../../../../e2e/data/courses/handles"
 
 import { useCoursePricingForm } from "./hooks/useCoursePricingForm";
 
-import type { SupportedLanguages } from "@repo/shared";
-
 type CoursePricingProps = {
   courseId: string;
   priceInCents?: number;
@@ -22,7 +22,15 @@ type CoursePricingProps = {
 };
 
 const CoursePricing = ({ courseId, priceInCents, currency, language }: CoursePricingProps) => {
-  const { form, onSubmit } = useCoursePricingForm({ courseId, priceInCents, currency, language });
+  // ЮKassa charges in RUB only; the API stores ЮKassa prices in RUB as well.
+  const isYooKassaEnabled = useIsYooKassaEnabled();
+  const priceCurrency = isYooKassaEnabled ? YOOKASSA_CURRENCY : currency;
+  const { form, onSubmit } = useCoursePricingForm({
+    courseId,
+    priceInCents,
+    currency: priceCurrency,
+    language,
+  });
   const { setValue, watch } = form;
   const { t } = useTranslation();
 
@@ -118,7 +126,7 @@ const CoursePricing = ({ courseId, priceInCents, currency, language }: CoursePri
                         data-testid={COURSE_PRICING_HANDLES.PRICE_INPUT}
                         value={form.getValues("priceInCents")}
                         onChange={(value) => setValue("priceInCents", value)}
-                        currency={currency}
+                        currency={priceCurrency?.toUpperCase()}
                         placeholder={t("adminCourseView.pricing.placeholder.amount")}
                         className={cn(
                           "[&::-moz-appearance]:textfield appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",

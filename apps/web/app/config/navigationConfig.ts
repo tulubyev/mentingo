@@ -47,6 +47,7 @@ export const getNavigationConfig = (
   isStripeConfigured = false,
   isLearningPathsEnabled = false,
   shouldShowLearningPaths = false,
+  isYooKassaEnabled = false,
 ): NavigationGroups[] => {
   const isAnyContentFeatureEnabled = isQAEnabled || isNewsEnabled || isArticlesEnabled;
 
@@ -173,7 +174,17 @@ export const getNavigationConfig = (
           iconName: "Categories",
           testId: NAVIGATION_HANDLES.CATEGORIES_LINK,
         },
-        ...(isStripeConfigured
+        ...(isYooKassaEnabled
+          ? [
+              {
+                label: t("navigationSideBar.payments"),
+                path: "admin/payments",
+                iconName: "ChartNoAxes",
+                testId: NAVIGATION_HANDLES.PAYMENTS_LINK,
+              } as NavigationItem,
+            ]
+          : []),
+        ...(isStripeConfigured || isYooKassaEnabled
           ? [
               {
                 label: t("navigationSideBar.promotionCodes", "Promotion Codes"),

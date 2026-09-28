@@ -1,3 +1,4 @@
+import { useIsYooKassaEnabled } from "~/api/queries/usePaymentsConfig";
 import { useStripeConfigured } from "~/api/queries/useStripeConfigured";
 import { AgeLimitSelect } from "~/modules/Dashboard/Settings/components/admin/AgeLimitSelect";
 import { InviteOnlyRegistration } from "~/modules/Dashboard/Settings/components/admin/InviteOnlyRegistration";
@@ -22,6 +23,8 @@ interface OrganizationTabContentProps {
 
 export default function OrganizationTabContent({ globalSettings }: OrganizationTabContentProps) {
   const { data: stripeConfigured } = useStripeConfigured();
+  // With ЮKassa every course is priced in RUB, so there is no currency to choose.
+  const isYooKassaEnabled = useIsYooKassaEnabled();
   const canEditSSOEnforcement = isGoogleOAuthEnabled || isMicrosoftOAuthEnabled;
 
   return (
@@ -34,7 +37,7 @@ export default function OrganizationTabContent({ globalSettings }: OrganizationT
         value={globalSettings.liveTrainingMaxParallelSessions}
       />
       <RoleBasedMFAEnforcementSwitch MFAEnforcedRoles={globalSettings.MFAEnforcedRoles} />
-      {stripeConfigured?.enabled && (
+      {stripeConfigured?.enabled && !isYooKassaEnabled && (
         <DefaultCourseCurrencySelect currentCurrency={globalSettings.defaultCourseCurrency} />
       )}
       <AgeLimitSelect limit={globalSettings.ageLimit} />

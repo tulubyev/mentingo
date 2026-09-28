@@ -688,6 +688,7 @@
     }
   },
   "navigationSideBar": {
+    "payments": "Payments",
     "settings": "Settings",
     "logout": "Logout",
     "panel": "panel",
@@ -4803,6 +4804,8 @@
     }
   },
   "pages": {
+    "payments": "Payments",
+    "paymentReturn": "Payment",
     "dashboard": "Dashboard",
     "settings": "Settings",
     "providerInformation": "Provider Information",
@@ -5873,6 +5876,177 @@
     },
     "admin": {
       "unverifiedHint": "Not verified yet: it will be verified at the user's first SMS sign-in"
+    }
+  },
+  "payments": {
+    "checkout": {
+      "buyFor": "Buy for {{price}}",
+      "redirecting": "Redirecting to payment…",
+      "havePromo": "Have a promo code?",
+      "promoPlaceholder": "Promo code",
+      "applyPromo": "Apply",
+      "promoApplied": "Promo code {{code}}: −{{discount}}",
+      "removePromo": "Remove",
+      "secureNote": "Payment is processed securely by YooKassa (bank card, SBP, SberPay and more)."
+    },
+    "return": {
+      "loading": {
+        "title": "Checking your payment…",
+        "description": "This usually takes a few seconds. Please do not close this page."
+      },
+      "succeeded": {
+        "title": "Payment successful",
+        "description": "You are enrolled in the course. Redirecting you to the course…"
+      },
+      "failed": {
+        "title": "Payment was not completed",
+        "description": "The payment was canceled or declined. No money was charged. You can try again."
+      },
+      "processing": {
+        "title": "Payment is still being processed",
+        "description": "We have not received confirmation from the bank yet. You will get access automatically once the payment is confirmed."
+      },
+      "notFound": {
+        "title": "Payment not found",
+        "description": "We could not find this payment. If money was charged, please contact the school."
+      },
+      "goToCourse": "Go to course",
+      "tryAgain": "Try again",
+      "checkAgain": "Check again",
+      "toCourses": "Browse courses"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "notConfigured": "Online payments are not available right now.",
+      "courseNotFound": "Course not found.",
+      "courseNotAvailable": "This course is not available for purchase.",
+      "courseIsFree": "This course is free — just enroll.",
+      "unsupportedCurrency": "This course's price is not in rubles and cannot be paid online.",
+      "alreadyEnrolled": "You are already enrolled in this course.",
+      "amountTooLow": "The price after discount is below the minimum payment amount (1 ₽).",
+      "receiptEmailRequired": "A valid e-mail in your profile is required to receive the receipt.",
+      "providerUnavailable": "The payment service is temporarily unavailable. Please try again later.",
+      "paymentNotFound": "Payment not found.",
+      "refundNotAllowed": "This payment cannot be refunded.",
+      "refundFailed": "The refund could not be created. Please try again later.",
+      "promoCodeNotFound": "Promo code not found.",
+      "promoCodeInactive": "This promo code is not active.",
+      "promoCodeNotApplicable": "This promo code does not apply to this course.",
+      "promoCodeNotStarted": "This promo code is not valid yet.",
+      "promoCodeExpired": "This promo code has expired.",
+      "promoCodeExhausted": "This promo code has been used the maximum number of times.",
+      "promoCodeInvalidFormat": "Use 3–64 letters, digits, \"-\" or \"_\".",
+      "promoCodeDuplicate": "A promo code with this code already exists.",
+      "promoCodeInvalidValue": "Invalid discount value.",
+      "promoCodeInvalidDates": "The end date must be after the start date.",
+      "paymentRequired": "This is a paid course. Please buy it to get access."
+    }
+  },
+  "adminPaymentsView": {
+    "header": "Payments",
+    "breadcrumbs": {
+      "payments": "Payments"
+    },
+    "exportCsv": "Export CSV",
+    "loading": "Loading…",
+    "empty": "No payments found.",
+    "filters": {
+      "search": "Search by user, e-mail, course, promo code or payment ID",
+      "status": "Status",
+      "course": "Course",
+      "from": "From",
+      "to": "To"
+    },
+    "status": {
+      "pending": "Pending",
+      "succeeded": "Paid",
+      "canceled": "Canceled",
+      "refunded": "Refunded",
+      "partially_refunded": "Partially refunded"
+    },
+    "columns": {
+      "date": "Date",
+      "user": "User",
+      "course": "Course",
+      "amount": "Amount",
+      "promoCode": "Promo code",
+      "status": "Status",
+      "providerPaymentId": "YooKassa payment ID",
+      "discountOf": "discount {{discount}} of {{original}}",
+      "refundedOf": "refunded {{amount}}"
+    },
+    "summary": {
+      "count": "Payments",
+      "paidCount": "Paid",
+      "total": "Received",
+      "refunded": "Refunded",
+      "net": "Net"
+    },
+    "refund": {
+      "button": "Refund",
+      "title": "Refund the payment?",
+      "description": "{{amount}} will be returned to the payer ({{email}}) for “{{course}}”. The student keeps access to the course — unenroll them manually if needed. This cannot be undone.",
+      "confirm": "Refund"
+    },
+    "toast": {
+      "refunded": "Refund created.",
+      "exportFailed": "Could not export payments."
+    }
+  },
+  "adminPromoCodesView": {
+    "header": "Promo codes",
+    "subheader": "Discounts for course payments via YooKassa.",
+    "create": "Create promo code",
+    "empty": "No promo codes yet.",
+    "columns": {
+      "code": "Code",
+      "discount": "Discount",
+      "course": "Course",
+      "validity": "Valid",
+      "activations": "Used",
+      "active": "Active"
+    },
+    "validity": {
+      "always": "Always"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "delete": {
+      "title": "Delete promo code?",
+      "description": "Promo code {{code}} will be deleted. Payments already made with it are kept."
+    },
+    "form": {
+      "createTitle": "New promo code",
+      "editTitle": "Edit promo code",
+      "code": "Code",
+      "discountType": "Discount type",
+      "percentValue": "Discount, %",
+      "fixedValue": "Discount, ₽",
+      "course": "Course",
+      "allCourses": "All courses",
+      "validFrom": "Valid from",
+      "validTo": "Valid until",
+      "maxActivations": "Maximum uses",
+      "unlimited": "Unlimited",
+      "isActive": "Active"
+    },
+    "discountType": {
+      "percent": "Percent",
+      "fixed": "Fixed amount"
+    },
+    "validation": {
+      "code": "Use 3–64 letters, digits, \"-\" or \"_\".",
+      "percent": "Enter a whole number from 1 to 100.",
+      "fixed": "Enter a discount amount.",
+      "maxActivations": "Enter a positive whole number or leave empty.",
+      "dates": "The end date must be after the start date."
+    },
+    "toast": {
+      "created": "Promo code created.",
+      "updated": "Promo code updated.",
+      "deleted": "Promo code deleted."
     }
   }
 }

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import { usePromotionCodesQuery } from "~/api/queries/admin/usePromotionCodes";
+import { useIsYooKassaEnabled, usePaymentsConfig } from "~/api/queries/usePaymentsConfig";
 import { useStripeConfigured } from "~/api/queries/useStripeConfigured";
 import { PageWrapper } from "~/components/PageWrapper/PageWrapper";
 import { Button } from "~/components/ui/button";
@@ -18,6 +19,8 @@ import {
 import { formatPrice } from "~/lib/formatters/priceFormatter";
 import { setPageTitle } from "~/utils/setPageTitle";
 
+import { YooKassaPromoCodes } from "../PromoCodes/YooKassaPromoCodes";
+
 import { useGetPromotionCodeStatus } from "./hooks/useGetPromotionCodes";
 
 import type { TPromotionCode } from "./types";
@@ -28,7 +31,11 @@ export const meta: MetaFunction = ({ matches }) => setPageTitle(matches, "pages.
 
 const PromotionCodes = () => {
   const { data: isStripeConfigured, isLoading } = useStripeConfigured();
-  const { data: promotionsCodes } = usePromotionCodesQuery(isStripeConfigured?.enabled);
+  const { isLoading: isPaymentsConfigLoading } = usePaymentsConfig();
+  const isYooKassaEnabled = useIsYooKassaEnabled();
+  const { data: promotionsCodes } = usePromotionCodesQuery(
+    Boolean(isStripeConfigured?.enabled) && !isYooKassaEnabled,
+  );
   const { getPromotionCodeStatus } = useGetPromotionCodeStatus();
 
   const navigate = useNavigate();
@@ -36,10 +43,12 @@ const PromotionCodes = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    if (!(isLoading || isStripeConfigured?.enabled)) {
+    if (
+      !(isLoading || isPaymentsConfigLoading || isStripeConfigured?.enabled || isYooKassaEnabled)
+    ) {
       navigate("/");
     }
-  }, [isStripeConfigured, navigate, isLoading]);
+  }, [isStripeConfigured, navigate, isLoading, isPaymentsConfigLoading, isYooKassaEnabled]);
 
   const columns: ColumnDef<TPromotionCode>[] = [
     {
@@ -99,6 +108,8 @@ const PromotionCodes = () => {
       href: "/admin/promotion-codes",
     },
   ];
+
+  if (isYooKassaEnabled) return <YooKassaPromoCodes />;
 
   if (!isStripeConfigured?.enabled) return null;
 

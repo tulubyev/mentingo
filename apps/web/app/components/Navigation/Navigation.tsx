@@ -7,6 +7,7 @@ import { useCurrentUser } from "~/api/queries";
 import { useConfigurationState } from "~/api/queries/admin/useConfigurationState";
 import { useGlobalSettings } from "~/api/queries/useGlobalSettings";
 import { useLearningPaths } from "~/api/queries/useLearningPaths";
+import { useIsYooKassaEnabled } from "~/api/queries/usePaymentsConfig";
 import { useStripeConfigured } from "~/api/queries/useStripeConfigured";
 import { matchesRequirement } from "~/common/permissions/permission.utils";
 import { Icon } from "~/components/Icon";
@@ -57,6 +58,7 @@ export function Navigation({ menuItems }: DashboardNavigationProps) {
   const { pathname } = useLocation();
   const [is2xlBreakpoint, setIs2xlBreakpoint] = useState(false);
   const { data: isStripeConfigured } = useStripeConfigured();
+  const isYooKassaEnabled = useIsYooKassaEnabled();
 
   const { data: globalSettings } = useGlobalSettings();
 
@@ -108,6 +110,7 @@ export function Navigation({ menuItems }: DashboardNavigationProps) {
         isStripeConfigured?.enabled,
         isLearningPathsEnabled,
         shouldShowLearningPaths,
+        isYooKassaEnabled,
       ),
     );
   }

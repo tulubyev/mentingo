@@ -10,6 +10,7 @@ import {
   useCurrentUser,
 } from "~/api/queries";
 import { useGlobalSettings } from "~/api/queries/useGlobalSettings";
+import { useIsYooKassaEnabled } from "~/api/queries/usePaymentsConfig";
 import { topCoursesQueryOptions } from "~/api/queries/useTopCourses";
 import { queryClient } from "~/api/queryClient";
 import { Enroll } from "~/assets/svgs";
@@ -18,6 +19,7 @@ import { CopyUrlButton } from "~/components/CopyUrlButton/CopyUrlButton";
 import { Icon } from "~/components/Icon";
 import { Button } from "~/components/ui/button";
 import { useLanguageStore } from "~/modules/Dashboard/Settings/Language/LanguageStore";
+import { YooKassaCheckout } from "~/modules/Payments/components/YooKassaCheckout";
 import { PaymentModal } from "~/modules/stripe/PaymentModal";
 
 import { COURSE_OVERVIEW_HANDLES } from "../../../../../e2e/data/courses/handles";
@@ -36,6 +38,7 @@ export const CourseOptions = ({ course }: CourseOptionsProps) => {
   const { mutateAsync: enrollCourse } = useEnrollCourse();
   const { data: currentUser } = useCurrentUser();
   const { data: globalSettings } = useGlobalSettings();
+  const isYooKassaEnabled = useIsYooKassaEnabled();
 
   const isGroupManager = hasPermission(
     currentUser?.permissions ?? [],
@@ -50,6 +53,35 @@ export const CourseOptions = ({ course }: CourseOptionsProps) => {
       queryClient.invalidateQueries(availableCoursesQueryOptions({ language }));
       queryClient.invalidateQueries(studentCoursesQueryOptions({ language }));
     });
+  };
+
+  const renderPaidOrEnrollButton = () => {
+    const isPaidCourse = Boolean(course.priceInCents && course.currency);
+
+    if (isPaidCourse && isYooKassaEnabled && currentUser) {
+      return (
+        <YooKassaCheckout
+          courseId={course.id}
+          priceInCents={course.priceInCents}
+          currency={course.currency}
+        />
+      );
+    }
+
+    if (isPaidCourse && course.stripePriceId) {
+      return (
+        <PaymentModal
+          courseCurrency={course.currency}
+          coursePrice={course.priceInCents}
+          courseTitle={course.title}
+          courseDescription={course.description}
+          courseId={course.id}
+          coursePriceId={course.stripePriceId}
+        />
+      );
+    }
+
+    return renderEnrollButton();
   };
 
   const renderEnrollButton = () => {
@@ -91,19 +123,7 @@ export const CourseOptions = ({ course }: CourseOptionsProps) => {
           <Icon name="Share" className="h-auto w-6 text-primary-800" />
           <span>{t("studentCourseView.sideSection.button.shareCourse")}</span>
         </CopyUrlButton>
-        {!isGroupManager &&
-          (course.priceInCents && course.currency && course.stripePriceId ? (
-            <PaymentModal
-              courseCurrency={course.currency}
-              coursePrice={course.priceInCents}
-              courseTitle={course.title}
-              courseDescription={course.description}
-              courseId={course.id}
-              coursePriceId={course.stripePriceId}
-            />
-          ) : (
-            renderEnrollButton()
-          ))}
+        {!isGroupManager && renderPaidOrEnrollButton()}
       </div>
     </>
   );

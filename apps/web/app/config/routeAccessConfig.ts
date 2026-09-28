@@ -98,6 +98,8 @@ export const routeAccessConfig = createRouteConfig({
   },
   settings: PUBLIC,
   "profile/:id": PUBLIC,
+  // Any signed-in user; the API only returns the caller's own payment.
+  "payment/return": PUBLIC,
   "course/:courseId/lesson/:lessonId": PUBLIC,
   "articles/:articleId/edit": ARTICLE_EDIT_ACCESS,
   "news/add": NEWS_EDIT_ACCESS,
@@ -152,6 +154,9 @@ export const routeAccessConfig = createRouteConfig({
   "admin/lessons/*": COURSE_EDIT_ACCESS,
   "admin/lesson-items/*": COURSE_EDIT_ACCESS,
   "provider-information": PUBLIC,
+  "admin/payments": {
+    allOf: [PERMISSIONS.BILLING_MANAGE],
+  },
   "admin/promotion-codes": {
     allOf: [PERMISSIONS.BILLING_MANAGE],
   },

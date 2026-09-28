@@ -11,12 +11,14 @@ import {
   useCurrentUser,
 } from "~/api/queries";
 import { useGlobalSettings } from "~/api/queries/useGlobalSettings";
+import { useIsYooKassaEnabled } from "~/api/queries/usePaymentsConfig";
 import { topCoursesQueryOptions } from "~/api/queries/useTopCourses";
 import { queryClient } from "~/api/queryClient";
 import { hasPermission } from "~/common/permissions/permission.utils";
 import { Button } from "~/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 import { useLanguageStore } from "~/modules/Dashboard/Settings/Language/LanguageStore";
+import { YooKassaCheckout } from "~/modules/Payments/components/YooKassaCheckout";
 
 import { COURSE_OVERVIEW_HANDLES } from "../../../../../e2e/data/courses/handles";
 import { useCourseAccessProvider } from "../../context/CourseAccessProvider";
@@ -41,6 +43,7 @@ export default function CourseOverviewActions({
   const { language } = useLanguageStore();
   const { data: currentUser } = useCurrentUser();
   const { data: globalSettings } = useGlobalSettings();
+  const isYooKassaEnabled = useIsYooKassaEnabled();
   const { mutateAsync: enrollCourse, isPending: isEnrolling } = useEnrollCourse();
   const { course, isAdminExperience, canEditCourse, isCourseStudentModeActive } =
     useCourseAccessProvider();
@@ -120,6 +123,16 @@ export default function CourseOverviewActions({
               </span>
             </Button>
           </Link>
+        );
+      }
+
+      if (isYooKassaEnabled && course.priceInCents > 0) {
+        return (
+          <YooKassaCheckout
+            courseId={course.id}
+            priceInCents={course.priceInCents}
+            currency={course.currency}
+          />
         );
       }
 

@@ -27,6 +27,7 @@ import { useAIConfigured } from "~/api/queries/useAIConfigured";
 import { ALL_COURSES_QUERY_KEY } from "~/api/queries/useCourses";
 import { useGlobalSettings } from "~/api/queries/useGlobalSettings";
 import { useLumaConfigured } from "~/api/queries/useLumaConfigured";
+import { useIsYooKassaEnabled } from "~/api/queries/usePaymentsConfig";
 import { useStripeConfigured } from "~/api/queries/useStripeConfigured";
 import { queryClient } from "~/api/queryClient";
 import { Icon } from "~/components/Icon";
@@ -99,6 +100,8 @@ const EditCourse = () => {
   const { id } = useParams();
 
   const { data: isStripeConfigured } = useStripeConfigured();
+  const isYooKassaEnabled = useIsYooKassaEnabled();
+  const isPricingEnabled = Boolean(isStripeConfigured?.enabled) || isYooKassaEnabled;
   const { data: isAIConfigured } = useAIConfigured();
   const { data: isLumaConfigured } = useLumaConfigured();
   const { data: currentUser } = useCurrentUserSuspense();
@@ -299,7 +302,7 @@ const EditCourse = () => {
       : EDIT_COURSE_TABS.CURRICULUM;
 
   const { activeTab } = useMemo(() => {
-    const canShowPricingTab = Boolean(isStripeConfigured?.enabled);
+    const canShowPricingTab = isPricingEnabled;
 
     const visibleCourseTabs = (
       isExportedCourse
@@ -312,7 +315,7 @@ const EditCourse = () => {
       : (visibleCourseTabs[0]?.value ?? EDIT_COURSE_TABS.STATUS);
 
     return { visibleCourseTabs, activeTab };
-  }, [courseTabs, isExportedCourse, isStripeConfigured?.enabled, selectedTab]);
+  }, [courseTabs, isExportedCourse, isPricingEnabled, selectedTab]);
 
   useEffect(() => {
     if (!course || rawSelectedTab === activeTab) return;
@@ -579,7 +582,7 @@ const EditCourse = () => {
             )}
           </TabsContent>
         )}
-        {isStripeConfigured?.enabled && (
+        {isPricingEnabled && (
           <TabsContent value={EDIT_COURSE_TABS.PRICING}>
             <CoursePricing
               courseId={course?.id || ""}

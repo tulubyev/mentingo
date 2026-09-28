@@ -224,3 +224,33 @@ describe("getNavigationConfig", () => {
     expect(items.some((item) => item.path === "admin/courses")).toBe(false);
   });
 });
+
+describe("getNavigationConfig payments", () => {
+  const t = ((key: string) => key) as TFunction;
+
+  const getManagePaths = (isStripeConfigured: boolean, isYooKassaEnabled: boolean) =>
+    getNavigationConfig(t, false, false, false, isStripeConfigured, false, false, isYooKassaEnabled)
+      .flatMap((group) => group.items)
+      .map((item) => item.path);
+
+  it("shows payments and promo codes when ЮKassa is enabled", () => {
+    const paths = getManagePaths(false, true);
+
+    expect(paths).toContain("admin/payments");
+    expect(paths).toContain("admin/promotion-codes");
+  });
+
+  it("keeps the Stripe promotion codes link without the payments registry", () => {
+    const paths = getManagePaths(true, false);
+
+    expect(paths).not.toContain("admin/payments");
+    expect(paths).toContain("admin/promotion-codes");
+  });
+
+  it("hides both links without a payment provider", () => {
+    const paths = getManagePaths(false, false);
+
+    expect(paths).not.toContain("admin/payments");
+    expect(paths).not.toContain("admin/promotion-codes");
+  });
+});

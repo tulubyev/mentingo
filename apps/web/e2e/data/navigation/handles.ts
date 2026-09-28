@@ -18,6 +18,7 @@ export const NAVIGATION_HANDLES = {
   SUPER_ADMIN_GROUP: "navigation-super-admin-group",
   TENANTS_LINK: "navigation-tenants-link",
   PROMOTION_CODES_LINK: "navigation-promotion-codes-link",
+  PAYMENTS_LINK: "navigation-payments-link",
   PROVIDER_INFORMATION_LINK: "navigation-provider-information-link",
   PROFILE_LINK: "navigation-profile-link",
   SETTINGS_LINK: "navigation-settings-link",

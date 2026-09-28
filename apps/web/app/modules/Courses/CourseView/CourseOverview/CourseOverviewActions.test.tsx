@@ -13,7 +13,14 @@ import CourseOverviewActions from "./CourseOverviewActions";
 const enrollCourse = vi.fn();
 let currentUser: { id: string; permissions: PermissionKey[] } | undefined;
 let inviteOnlyRegistration = false;
-let course: { enrolled: boolean; id: string; status: "draft" | "published" | "private" };
+let course: {
+  enrolled: boolean;
+  id: string;
+  status: "draft" | "published" | "private";
+  priceInCents?: number;
+  currency?: string;
+};
+let isYooKassaEnabled = false;
 let isAdminExperience = false;
 let canEditCourse = false;
 let isCourseStudentModeActive = false;
@@ -34,6 +41,16 @@ vi.mock("~/api/queries", () => ({
 
 vi.mock("~/api/queries/useGlobalSettings", () => ({
   useGlobalSettings: () => ({ data: { inviteOnlyRegistration } }),
+}));
+
+vi.mock("~/api/queries/usePaymentsConfig", () => ({
+  useIsYooKassaEnabled: () => isYooKassaEnabled,
+}));
+
+vi.mock("~/modules/Payments/components/YooKassaCheckout", () => ({
+  YooKassaCheckout: ({ priceInCents }: { priceInCents: number }) => (
+    <div data-testid="yookassa-checkout">{priceInCents}</div>
+  ),
 }));
 
 vi.mock("~/api/queries/useTopCourses", () => ({
@@ -90,6 +107,35 @@ describe("CourseOverviewActions", () => {
     isAdminExperience = false;
     canEditCourse = false;
     isCourseStudentModeActive = false;
+    isYooKassaEnabled = false;
+  });
+
+  it("offers the ЮKassa checkout instead of free enrollment for paid courses", () => {
+    currentUser = { id: "student-1", permissions: [PERMISSIONS.LEARNING_PROGRESS_UPDATE] };
+    isYooKassaEnabled = true;
+    course = {
+      enrolled: false,
+      id: "course-1",
+      status: "published",
+      priceInCents: 150000,
+      currency: "rub",
+    };
+
+    renderActions();
+
+    expect(screen.getByTestId("yookassa-checkout")).toHaveTextContent("150000");
+    expect(screen.queryByTestId(COURSE_OVERVIEW_HANDLES.ENROLL_BUTTON)).not.toBeInTheDocument();
+  });
+
+  it("keeps free enrollment for free courses when ЮKassa is enabled", () => {
+    currentUser = { id: "student-1", permissions: [PERMISSIONS.LEARNING_PROGRESS_UPDATE] };
+    isYooKassaEnabled = true;
+    course = { enrolled: false, id: "course-1", status: "published", priceInCents: 0 };
+
+    renderActions();
+
+    expect(screen.getByTestId(COURSE_OVERVIEW_HANDLES.ENROLL_BUTTON)).toBeInTheDocument();
+    expect(screen.queryByTestId("yookassa-checkout")).not.toBeInTheDocument();
   });
 
   it("links unauthenticated users to registration when registration is open", () => {

@@ -8,6 +8,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useCurrentUserSuspense } from "~/api/queries";
+import { useIsYooKassaEnabled } from "~/api/queries/usePaymentsConfig";
 import { useStripeConfigured } from "~/api/queries/useStripeConfigured";
 import { usePermissions } from "~/hooks/usePermissions";
 
@@ -24,6 +25,8 @@ export const useEditCourseTabs = ({
 }: UseEditCourseTabsParams = {}) => {
   const { t } = useTranslation();
   const { data: isStripeConfigured } = useStripeConfigured();
+  const isYooKassaEnabled = useIsYooKassaEnabled();
+  const isPricingEnabled = Boolean(isStripeConfigured?.enabled) || isYooKassaEnabled;
 
   const { hasAccess: canManageUsers } = usePermissions({ required: PERMISSIONS.USER_MANAGE });
   const { hasAccess: canManageCourses } = usePermissions({
@@ -44,7 +47,7 @@ export const useEditCourseTabs = ({
       ...(canEditCurriculum
         ? [{ label: t("adminCourseView.common.curriculum"), value: EDIT_COURSE_TABS.CURRICULUM }]
         : []),
-      ...(isStripeConfigured?.enabled
+      ...(isPricingEnabled
         ? [
             {
               label: t("adminCourseView.common.pricing"),
@@ -54,7 +57,7 @@ export const useEditCourseTabs = ({
         : []),
       { label: t("adminCourseView.common.status"), value: EDIT_COURSE_TABS.STATUS },
     ];
-  }, [courseType, isStripeConfigured, t]);
+  }, [courseType, isPricingEnabled, t]);
 
   const adminTabs = useMemo(
     () => [

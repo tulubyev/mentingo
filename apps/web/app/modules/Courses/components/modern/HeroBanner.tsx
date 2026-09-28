@@ -13,6 +13,7 @@ import {
   studentCoursesQueryOptions,
   useCourse,
 } from "~/api/queries";
+import { useIsYooKassaEnabled } from "~/api/queries/usePaymentsConfig";
 import { topCoursesQueryOptions } from "~/api/queries/useTopCourses";
 import { queryClient } from "~/api/queryClient";
 import DefaultPhotoCourse from "~/assets/svgs/default-photo-course.svg";
@@ -59,6 +60,7 @@ const HeroBanner = ({
     required: PERMISSIONS.LEARNING_PROGRESS_UPDATE,
   });
   const { mutateAsync: enrollCourse } = useEnrollCourse();
+  const isYooKassaEnabled = useIsYooKassaEnabled();
   const isGroupManager = hasPermission(
     currentUser?.permissions ?? [],
     PERMISSIONS.MANAGED_GROUP_RESULTS_READ,
@@ -122,6 +124,12 @@ const HeroBanner = ({
     const shouldEnrollBeforeNavigation =
       !isPreviewMode && !heroCourseData.enrolled && canUpdateLearningProgress;
 
+    // Paid courses are bought on the course page (ЮKassa checkout), not enrolled directly.
+    if (shouldEnrollBeforeNavigation && isYooKassaEnabled && heroCourseData.priceInCents > 0) {
+      navigate(`/course/${heroCourseData.slug ?? heroCourseData.id}`);
+      return;
+    }
+
     if (shouldEnrollBeforeNavigation) {
       await enrollCourse(
         { id: heroCourseData.id },
@@ -146,6 +154,7 @@ const HeroBanner = ({
     isPreviewMode,
     navigate,
     enrollCourse,
+    isYooKassaEnabled,
     canUpdateLearningProgress,
     language,
   ]);
