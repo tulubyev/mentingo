@@ -9882,6 +9882,223 @@ export interface SearchResponse {
   };
 }
 
+export interface GetPaymentsConfigResponse {
+  data: {
+    provider: ("yookassa" | "stripe") | null;
+    currency: string | null;
+  };
+}
+
+export interface GetYooKassaQuoteBody {
+  /** @format uuid */
+  courseId: string;
+  /** @maxLength 64 */
+  promoCode?: string;
+}
+
+export interface GetYooKassaQuoteResponse {
+  data: {
+    originalAmount: number;
+    discountAmount: number;
+    amount: number;
+    currency: string;
+    promoCode: string | null;
+  };
+}
+
+export interface CreateYooKassaCheckoutBody {
+  /** @format uuid */
+  courseId: string;
+  /** @maxLength 64 */
+  promoCode?: string;
+}
+
+export interface CreateYooKassaCheckoutResponse {
+  data: {
+    /** @format uuid */
+    paymentId: string;
+    confirmationUrl: string;
+  };
+}
+
+export interface GetPaymentStatusResponse {
+  data: {
+    /** @format uuid */
+    id: string;
+    status: "pending" | "succeeded" | "canceled" | "refunded" | "partially_refunded";
+    courseId: string | null;
+    amount: number;
+    currency: string;
+  };
+}
+
+export interface GetPaymentsResponse {
+  data: {
+    /** @format uuid */
+    id: string;
+    createdAt: string;
+    paidAt: string | null;
+    canceledAt: string | null;
+    refundedAt: string | null;
+    status: "pending" | "succeeded" | "canceled" | "refunded" | "partially_refunded";
+    provider: "yookassa" | "stripe";
+    providerPaymentId: string | null;
+    amount: number;
+    originalAmount: number;
+    discountAmount: number;
+    refundedAmount: number;
+    currency: string;
+    promoCode: string | null;
+    courseId: string | null;
+    courseTitle: string;
+    userId: string | null;
+    userFirstName: string | null;
+    userLastName: string | null;
+    userEmail: string | null;
+  }[];
+  pagination: {
+    totalItems: number;
+    page: number;
+    perPage: number;
+  };
+  appliedFilters?: object;
+}
+
+export interface GetPaymentsSummaryResponse {
+  data: {
+    count: number;
+    succeededCount: number;
+    totalAmount: number;
+    refundedAmount: number;
+    netAmount: number;
+    currency: string | null;
+  };
+}
+
+export interface RefundPaymentResponse {
+  data: {
+    /** @format uuid */
+    id: string;
+    createdAt: string;
+    paidAt: string | null;
+    canceledAt: string | null;
+    refundedAt: string | null;
+    status: "pending" | "succeeded" | "canceled" | "refunded" | "partially_refunded";
+    provider: "yookassa" | "stripe";
+    providerPaymentId: string | null;
+    amount: number;
+    originalAmount: number;
+    discountAmount: number;
+    refundedAmount: number;
+    currency: string;
+    promoCode: string | null;
+    courseId: string | null;
+    courseTitle: string;
+    userId: string | null;
+    userFirstName: string | null;
+    userLastName: string | null;
+    userEmail: string | null;
+  };
+}
+
+export interface HandleWebhookResponse {
+  data: {
+    received: boolean;
+  };
+}
+
+export interface GetPromoCodesResponse {
+  data: {
+    /** @format uuid */
+    id: string;
+    code: string;
+    discountType: "percent" | "fixed";
+    discountValue: number;
+    courseId: string | null;
+    courseTitle: string | null;
+    validFrom: string | null;
+    validTo: string | null;
+    maxActivations: number | null;
+    activationsCount: number;
+    isActive: boolean;
+    createdAt: string;
+  }[];
+}
+
+export interface CreatePromoCodeBody {
+  /**
+   * @minLength 3
+   * @maxLength 64
+   */
+  code: string;
+  discountType: "percent" | "fixed";
+  /** @min 1 */
+  discountValue: number;
+  courseId?: string | null;
+  validFrom?: string | null;
+  validTo?: string | null;
+  maxActivations?: number | null;
+  isActive?: boolean;
+}
+
+export interface CreatePromoCodeResponse {
+  data: {
+    /** @format uuid */
+    id: string;
+    code: string;
+    discountType: "percent" | "fixed";
+    discountValue: number;
+    courseId: string | null;
+    courseTitle: string | null;
+    validFrom: string | null;
+    validTo: string | null;
+    maxActivations: number | null;
+    activationsCount: number;
+    isActive: boolean;
+    createdAt: string;
+  };
+}
+
+export interface UpdatePromoCodeBody {
+  /**
+   * @minLength 3
+   * @maxLength 64
+   */
+  code?: string;
+  discountType?: "percent" | "fixed";
+  /** @min 1 */
+  discountValue?: number;
+  courseId?: string | null;
+  validFrom?: string | null;
+  validTo?: string | null;
+  maxActivations?: number | null;
+  isActive?: boolean;
+}
+
+export interface UpdatePromoCodeResponse {
+  data: {
+    /** @format uuid */
+    id: string;
+    code: string;
+    discountType: "percent" | "fixed";
+    discountValue: number;
+    courseId: string | null;
+    courseTitle: string | null;
+    validFrom: string | null;
+    validTo: string | null;
+    maxActivations: number | null;
+    activationsCount: number;
+    isActive: boolean;
+    createdAt: string;
+  };
+}
+
+export interface DeletePromoCodeResponse {
+  data: {
+    deleted: boolean;
+  };
+}
+
 export type InitScormImportBody =
   | {
       action: "create-course";
@@ -18401,6 +18618,254 @@ export class API<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/api/global-search`,
         method: "GET",
         query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PaymentsControllerGetPaymentsConfig
+     * @request GET:/api/payments/config
+     */
+    paymentsControllerGetPaymentsConfig: (params: RequestParams = {}) =>
+      this.request<GetPaymentsConfigResponse, any>({
+        path: `/api/payments/config`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PaymentsControllerGetYooKassaQuote
+     * @request POST:/api/payments/yookassa/quote
+     */
+    paymentsControllerGetYooKassaQuote: (data: GetYooKassaQuoteBody, params: RequestParams = {}) =>
+      this.request<GetYooKassaQuoteResponse, any>({
+        path: `/api/payments/yookassa/quote`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PaymentsControllerCreateYooKassaCheckout
+     * @request POST:/api/payments/yookassa/checkout
+     */
+    paymentsControllerCreateYooKassaCheckout: (
+      data: CreateYooKassaCheckoutBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<CreateYooKassaCheckoutResponse, any>({
+        path: `/api/payments/yookassa/checkout`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PaymentsControllerGetPaymentStatus
+     * @request GET:/api/payments/{id}/status
+     */
+    paymentsControllerGetPaymentStatus: (id: string, params: RequestParams = {}) =>
+      this.request<GetPaymentStatusResponse, any>({
+        path: `/api/payments/${id}/status`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PaymentsControllerGetPayments
+     * @request GET:/api/payments
+     */
+    paymentsControllerGetPayments: (
+      query?: {
+        /** @min 1 */
+        page?: number;
+        /** @min 1 */
+        perPage?: number;
+        status?: "pending" | "succeeded" | "canceled" | "refunded" | "partially_refunded";
+        /** @format uuid */
+        courseId?: string;
+        /** @format uuid */
+        userId?: string;
+        /** @maxLength 200 */
+        search?: string;
+        /** @format date */
+        from?: string;
+        /** @format date */
+        to?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<GetPaymentsResponse, any>({
+        path: `/api/payments`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PaymentsControllerGetPaymentsSummary
+     * @request GET:/api/payments/summary
+     */
+    paymentsControllerGetPaymentsSummary: (
+      query?: {
+        status?: "pending" | "succeeded" | "canceled" | "refunded" | "partially_refunded";
+        /** @format uuid */
+        courseId?: string;
+        /** @format uuid */
+        userId?: string;
+        /** @maxLength 200 */
+        search?: string;
+        /** @format date */
+        from?: string;
+        /** @format date */
+        to?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<GetPaymentsSummaryResponse, any>({
+        path: `/api/payments/summary`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PaymentsControllerExportPayments
+     * @request GET:/api/payments/export
+     */
+    paymentsControllerExportPayments: (
+      query?: {
+        status?: "pending" | "succeeded" | "canceled" | "refunded" | "partially_refunded";
+        /** @format uuid */
+        courseId?: string;
+        /** @format uuid */
+        userId?: string;
+        /** @maxLength 200 */
+        search?: string;
+        /** @format date */
+        from?: string;
+        /** @format date */
+        to?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/api/payments/export`,
+        method: "GET",
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PaymentsControllerRefundPayment
+     * @request POST:/api/payments/{id}/refund
+     */
+    paymentsControllerRefundPayment: (id: string, params: RequestParams = {}) =>
+      this.request<RefundPaymentResponse, any>({
+        path: `/api/payments/${id}/refund`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name YooKassaWebhookControllerHandleWebhook
+     * @request POST:/api/payments/yookassa/webhook
+     */
+    yooKassaWebhookControllerHandleWebhook: (params: RequestParams = {}) =>
+      this.request<HandleWebhookResponse, any>({
+        path: `/api/payments/yookassa/webhook`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PromoCodesControllerGetPromoCodes
+     * @request GET:/api/promo-codes
+     */
+    promoCodesControllerGetPromoCodes: (params: RequestParams = {}) =>
+      this.request<GetPromoCodesResponse, any>({
+        path: `/api/promo-codes`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PromoCodesControllerCreatePromoCode
+     * @request POST:/api/promo-codes
+     */
+    promoCodesControllerCreatePromoCode: (data: CreatePromoCodeBody, params: RequestParams = {}) =>
+      this.request<CreatePromoCodeResponse, any>({
+        path: `/api/promo-codes`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PromoCodesControllerUpdatePromoCode
+     * @request PATCH:/api/promo-codes/{id}
+     */
+    promoCodesControllerUpdatePromoCode: (
+      id: string,
+      data: UpdatePromoCodeBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<UpdatePromoCodeResponse, any>({
+        path: `/api/promo-codes/${id}`,
+        method: "PATCH",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name PromoCodesControllerDeletePromoCode
+     * @request DELETE:/api/promo-codes/{id}
+     */
+    promoCodesControllerDeletePromoCode: (id: string, params: RequestParams = {}) =>
+      this.request<DeletePromoCodeResponse, any>({
+        path: `/api/promo-codes/${id}`,
+        method: "DELETE",
         format: "json",
         ...params,
       }),
